@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/vue-query'
 import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 import { api, type Schemas } from './client'
+import { unwrap } from './errors'
 
 export type Application = Schemas['ApplicationRead']
 export type ApplicationStatus = Schemas['ApplicationStatus']
@@ -23,19 +24,6 @@ export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
 }
 
 export const APPLICATION_STATUSES = Object.keys(APPLICATION_STATUS_LABELS) as ApplicationStatus[]
-
-async function unwrap<T>(
-  call: Promise<{ data?: T; error?: unknown; response: Response }>,
-): Promise<T> {
-  const { data, error, response } = await call
-  if (error !== undefined || data === undefined) {
-    const detail = (error as { detail?: unknown } | undefined)?.detail
-    throw new Error(
-      typeof detail === 'string' ? detail : `Request failed with HTTP ${response.status}`,
-    )
-  }
-  return data
-}
 
 export interface ApplicationFilters {
   /** Case-insensitive substring of the Organization name. */
