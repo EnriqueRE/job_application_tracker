@@ -37,6 +37,8 @@ UPDATABLE_FIELDS = frozenset(
 """Fields ``create``/``update`` accept. The Pipeline Status is not among them: it changes only
 through Application Events or the Status Override."""
 
+EVENT_UPDATABLE_FIELDS = frozenset({"event_type", "occurred_at", "notes", "resulting_status"})
+
 
 def _reject_unknown(fields: dict[str, Any]) -> None:
     unknown = fields.keys() - UPDATABLE_FIELDS
@@ -168,7 +170,72 @@ class ApplicationService:
         )
         self.session.add(event)
         self.session.flush()
+        self._derive_status(application)
         return event
+
+    def list_events(self, application_id: int) -> list[ApplicationEvent]:
+        """An Application's timeline, in the order the events were added."""
+        return list(self.get(application_id).events)
+
+    def update_event(self, event_id: int, **changes: Any) -> ApplicationEvent:
+        """Change any of ``EVENT_UPDATABLE_FIELDS`` and re-derive the Pipeline Status.
+
+        Changing ``event_type`` without a ``resulting_status`` re-derives the event's
+        resulting status from the new type.
+        """
+        unknown = changes.keys() - EVENT_UPDATABLE_FIELDS
+        if unknown:
+            raise InvalidValueError(f"Application Event has no settable fields {sorted(unknown)}")
+        event = self.get_event(event_id)
+        if "event_type" in changes and changes.get("resulting_status") is None:
+            changes["resulting_status"] = status_for_event(changes["event_type"])
+        for field, value in changes.items():
+            setattr(event, field, value)
+        self.session.flush()
+        self._derive_status(event.application)
+        return event
+
+    def delete_event(self, event_id: int) -> None:
+        """Remove an Application Event and re-derive the Pipeline Status."""
+        event = self.get_event(event_id)
+        application = event.application
+        application.events.remove(event)
+        self.session.flush()
+        self._derive_status(application)
+
+    # Status Override
+
+    def set_status_override(self, application_id: int, status: ApplicationStatus) -> Application:
+        """Pin the Pipeline Status by hand; Application Events stop changing it."""
+        application = self.get(application_id)
+        application.current_status = status
+        application.status_overridden = True
+        self.session.flush()
+        return application
+
+    def clear_status_override(self, application_id: int) -> Application:
+        """Resume event-derived Pipeline Status and recompute it now."""
+        application = self.get(application_id)
+        application.status_overridden = False
+        self._derive_status(application)
+        return application
+
+    def _derive_status(self, application: Application) -> None:
+        """Set the Pipeline Status from the latest-added status-bearing Application Event
+        (``saved`` if there is none), unless a Status Override is in effect."""
+        if application.status_overridden:
+            return
+        latest = self.session.scalar(
+            select(ApplicationEvent.resulting_status)
+            .where(
+                ApplicationEvent.application_id == application.id,
+                ApplicationEvent.resulting_status.is_not(None),
+            )
+            .order_by(ApplicationEvent.id.desc())
+            .limit(1)
+        )
+        application.current_status = latest or ApplicationStatus.SAVED
+        self.session.flush()
 
     def _require_organization(self, organization_id: int) -> None:
         if self.session.get(Organization, organization_id) is None:

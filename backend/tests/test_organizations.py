@@ -20,7 +20,9 @@ def organizations(db_session: Session) -> OrganizationService:
 def test_created_organization_has_a_normalized_name_and_defaults(
     organizations: OrganizationService,
 ) -> None:
-    created = organizations.create(name="  DataDog  Inc ", organization_type=OrganizationType.COMPANY)
+    created = organizations.create(
+        name="  DataDog  Inc ", organization_type=OrganizationType.COMPANY
+    )
 
     fetched = organizations.get(created.id)
     assert fetched.name == "  DataDog  Inc "
