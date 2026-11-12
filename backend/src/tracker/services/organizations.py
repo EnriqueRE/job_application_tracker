@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from tracker.domain import Application, Organization, OrganizationType
@@ -109,7 +109,20 @@ class OrganizationService:
         return organization
 
     def archive(self, organization_id: int) -> Organization:
+        """Archive an Organization; blocked while it has active (unarchived) Applications."""
         organization = self.get(organization_id)
+        active = self.session.scalar(
+            select(func.count(Application.id)).where(
+                Application.organization_id == organization_id,
+                Application.archived_at.is_(None),
+            )
+        )
+        if active:
+            noun = "Application" if active == 1 else "Applications"
+            raise OrganizationInUseError(
+                f"{organization.name} has {active} active {noun}; "
+                "archive them before archiving the Organization"
+            )
         organization.archived_at = utc_now()
         self.session.flush()
         return organization
