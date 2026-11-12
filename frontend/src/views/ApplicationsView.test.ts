@@ -255,6 +255,28 @@ describe('Applications list', () => {
       expect(router.currentRoute.value.query.status).toBeUndefined()
       expect(offer().attributes('aria-pressed')).toBe('false')
     })
+
+    it('adds and removes Pipeline Statuses from the filter one count at a time', async () => {
+      const { wrapper, router, fetchMock } = await mountAt('/applications')
+      const applied = () => countButtons(wrapper)[1]!
+      const offer = () => countButtons(wrapper)[6]!
+
+      await offer().trigger('click')
+      await flushPromises()
+      await applied().trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.query.status).toEqual(['applied', 'offer'])
+      expect(requestsMade(fetchMock)).toContain('GET /api/applications?status=applied&status=offer')
+      expect(applied().attributes('aria-pressed')).toBe('true')
+      expect(offer().attributes('aria-pressed')).toBe('true')
+
+      await offer().trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.query.status).toBe('applied')
+      expect(offer().attributes('aria-pressed')).toBe('false')
+    })
   })
 
   describe('sorting', () => {
