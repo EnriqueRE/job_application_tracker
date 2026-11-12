@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine, pool
 
+import tracker.domain  # noqa: F401  (registers the domain tables on Base.metadata)
 from tracker.db import Base
 from tracker.settings import get_settings
 
@@ -11,7 +12,6 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name, disable_existing_loggers=False)
 
-# Import model modules here (or in tracker.models) so their tables register on Base.metadata.
 target_metadata = Base.metadata
 
 
