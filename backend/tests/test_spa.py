@@ -46,7 +46,7 @@ def test_client_side_routes_fall_back_to_index_html(spa_client: TestClient) -> N
     assert response.text == INDEX_HTML
 
 
-@pytest.mark.parametrize("path", ["/api", "/api/", "/api/nope", "/api/applications/42"])
+@pytest.mark.parametrize("path", ["/api", "/api/", "/api/nope", "/api/nope/42"])
 def test_unknown_api_paths_are_404_not_index_html(spa_client: TestClient, path: str) -> None:
     response = spa_client.get(path)
 
