@@ -1,6 +1,740 @@
 {
   "components": {
     "schemas": {
+      "ApplicationCreate": {
+        "properties": {
+          "application_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Notes"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "interview_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interview Notes"
+          },
+          "job_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Description"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "next_action_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action At"
+          },
+          "organization_id": {
+            "title": "Organization Id",
+            "type": "integer"
+          },
+          "role": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Role",
+            "type": "string"
+          },
+          "vacancy_age": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Age"
+          },
+          "vacancy_source": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Source"
+          },
+          "vacancy_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Url"
+          },
+          "work_arrangement": {
+            "$ref": "#/components/schemas/WorkArrangement",
+            "default": "unspecified"
+          }
+        },
+        "required": [
+          "organization_id",
+          "role"
+        ],
+        "title": "ApplicationCreate",
+        "type": "object"
+      },
+      "ApplicationDetail": {
+        "description": "An Application with its Job Description, Interview Notes, Application Notes and\nApplication Event timeline (oldest first).",
+        "properties": {
+          "application_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Notes"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ApplicationTimelineEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "interview_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interview Notes"
+          },
+          "job_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Description"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "next_action_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action At"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/ApplicationOrganization"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status_overridden": {
+            "title": "Status Overridden",
+            "type": "boolean"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "vacancy_age": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Age"
+          },
+          "vacancy_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Source"
+          },
+          "vacancy_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Url"
+          },
+          "work_arrangement": {
+            "$ref": "#/components/schemas/WorkArrangement"
+          }
+        },
+        "required": [
+          "id",
+          "organization",
+          "role",
+          "location",
+          "work_arrangement",
+          "vacancy_source",
+          "vacancy_url",
+          "vacancy_age",
+          "applied_at",
+          "next_action_at",
+          "current_status",
+          "status_overridden",
+          "created_at",
+          "updated_at",
+          "archived_at",
+          "job_description",
+          "interview_notes",
+          "application_notes",
+          "events"
+        ],
+        "title": "ApplicationDetail",
+        "type": "object"
+      },
+      "ApplicationEventType": {
+        "description": "Kinds of Application Event in an Application's timeline.",
+        "enum": [
+          "saved",
+          "applied",
+          "contacted",
+          "screening",
+          "interview_scheduled",
+          "interview_completed",
+          "technical_interview",
+          "final_interview",
+          "follow_up",
+          "offer",
+          "rejected",
+          "withdrawn",
+          "closed",
+          "no_response",
+          "note"
+        ],
+        "title": "ApplicationEventType",
+        "type": "string"
+      },
+      "ApplicationOrganization": {
+        "description": "The Organization an Application belongs to, as embedded in Application responses.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "organization_type": {
+            "$ref": "#/components/schemas/OrganizationType"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "organization_type"
+        ],
+        "title": "ApplicationOrganization",
+        "type": "object"
+      },
+      "ApplicationRead": {
+        "description": "An Application as shown in lists (without its Markdown texts or timeline).",
+        "properties": {
+          "applied_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "next_action_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action At"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/ApplicationOrganization"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status_overridden": {
+            "title": "Status Overridden",
+            "type": "boolean"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "vacancy_age": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Age"
+          },
+          "vacancy_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Source"
+          },
+          "vacancy_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Url"
+          },
+          "work_arrangement": {
+            "$ref": "#/components/schemas/WorkArrangement"
+          }
+        },
+        "required": [
+          "id",
+          "organization",
+          "role",
+          "location",
+          "work_arrangement",
+          "vacancy_source",
+          "vacancy_url",
+          "vacancy_age",
+          "applied_at",
+          "next_action_at",
+          "current_status",
+          "status_overridden",
+          "created_at",
+          "updated_at",
+          "archived_at"
+        ],
+        "title": "ApplicationRead",
+        "type": "object"
+      },
+      "ApplicationSort": {
+        "description": "Date columns an Application list can be sorted by.",
+        "enum": [
+          "applied_at",
+          "next_action_at",
+          "updated_at"
+        ],
+        "title": "ApplicationSort",
+        "type": "string"
+      },
+      "ApplicationStatus": {
+        "description": "The Pipeline Status values, in pipeline order.",
+        "enum": [
+          "saved",
+          "applied",
+          "screening",
+          "interview",
+          "technical_interview",
+          "final_interview",
+          "offer",
+          "rejected",
+          "withdrawn",
+          "closed",
+          "no_response"
+        ],
+        "title": "ApplicationStatus",
+        "type": "string"
+      },
+      "ApplicationTimelineEvent": {
+        "description": "One Application Event in an Application's timeline.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "event_type": {
+            "$ref": "#/components/schemas/ApplicationEventType"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Occurred At"
+          },
+          "resulting_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "event_type",
+          "occurred_at",
+          "notes",
+          "resulting_status",
+          "created_at"
+        ],
+        "title": "ApplicationTimelineEvent",
+        "type": "object"
+      },
+      "ApplicationUpdate": {
+        "additionalProperties": false,
+        "description": "Partial update: only the fields sent change. The Pipeline Status is not settable here;\nit changes through Application Events or the Status Override.",
+        "properties": {
+          "application_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Application Notes"
+          },
+          "applied_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applied At"
+          },
+          "interview_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interview Notes"
+          },
+          "job_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Description"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "next_action_at": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action At"
+          },
+          "organization_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organization Id"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "vacancy_age": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Age"
+          },
+          "vacancy_source": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Source"
+          },
+          "vacancy_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacancy Url"
+          },
+          "work_arrangement": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WorkArrangement"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "ApplicationUpdate",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthStatus": {
         "properties": {
           "database": {
@@ -26,6 +760,94 @@
         ],
         "title": "HealthStatus",
         "type": "object"
+      },
+      "OrganizationType": {
+        "description": "Kinds of Organization an Application can be with.",
+        "enum": [
+          "company",
+          "recruiter",
+          "recruiting_firm",
+          "portal"
+        ],
+        "title": "OrganizationType",
+        "type": "string"
+      },
+      "SortOrder": {
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "title": "SortOrder",
+        "type": "string"
+      },
+      "StatusCount": {
+        "description": "How many non-archived Applications are in one Pipeline Status.",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          }
+        },
+        "required": [
+          "status",
+          "count"
+        ],
+        "title": "StatusCount",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "WorkArrangement": {
+        "description": "Where an Application expects the work to happen.",
+        "enum": [
+          "remote",
+          "hybrid",
+          "onsite",
+          "unspecified"
+        ],
+        "title": "WorkArrangement",
+        "type": "string"
       }
     }
   },
@@ -35,6 +857,397 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/applications": {
+      "get": {
+        "operationId": "list_applications_api_applications_get",
+        "parameters": [
+          {
+            "description": "Case-insensitive substring of the Organization name",
+            "in": "query",
+            "name": "organization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive substring of the Organization name",
+              "title": "Organization"
+            }
+          },
+          {
+            "description": "Case-insensitive substring of the role",
+            "in": "query",
+            "name": "role",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive substring of the role",
+              "title": "Role"
+            }
+          },
+          {
+            "description": "Keep Applications in any of these Pipeline Statuses",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationStatus"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Keep Applications in any of these Pipeline Statuses",
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_archived",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Archived",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ApplicationSort",
+              "default": "applied_at"
+            }
+          },
+          {
+            "description": "Applications without the sort date come last either way",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/SortOrder",
+              "default": "desc",
+              "description": "Applications without the sort date come last either way"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationRead"
+                  },
+                  "title": "Response List Applications Api Applications Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Applications",
+        "tags": [
+          "applications"
+        ]
+      },
+      "post": {
+        "operationId": "create_application_api_applications_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Application",
+        "tags": [
+          "applications"
+        ]
+      }
+    },
+    "/api/applications/due": {
+      "get": {
+        "description": "Non-archived Applications whose next action date is overdue or within the next\n7 days, soonest first.",
+        "operationId": "due_applications_api_applications_due_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationRead"
+                  },
+                  "title": "Response Due Applications Api Applications Due Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Due Applications",
+        "tags": [
+          "applications"
+        ]
+      }
+    },
+    "/api/applications/status-counts": {
+      "get": {
+        "description": "A count for every Pipeline Status (in pipeline order) over non-archived Applications.",
+        "operationId": "status_counts_api_applications_status_counts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/StatusCount"
+                  },
+                  "title": "Response Status Counts Api Applications Status Counts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Status Counts",
+        "tags": [
+          "applications"
+        ]
+      }
+    },
+    "/api/applications/{application_id}": {
+      "get": {
+        "operationId": "get_application_api_applications__application_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Application",
+        "tags": [
+          "applications"
+        ]
+      },
+      "patch": {
+        "operationId": "update_application_api_applications__application_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Application",
+        "tags": [
+          "applications"
+        ]
+      }
+    },
+    "/api/applications/{application_id}/archive": {
+      "post": {
+        "operationId": "archive_application_api_applications__application_id__archive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Archive Application",
+        "tags": [
+          "applications"
+        ]
+      }
+    },
+    "/api/applications/{application_id}/restore": {
+      "post": {
+        "operationId": "restore_application_api_applications__application_id__restore_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Restore Application",
+        "tags": [
+          "applications"
+        ]
+      }
+    },
     "/api/health": {
       "get": {
         "description": "Report whether the app is up and can reach its database.",
