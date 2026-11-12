@@ -68,6 +68,9 @@ const facts = computed(() => {
     <div>
       <PageHeader :title="application.role">
         <template #actions>
+          <Button as-child variant="outline" size="sm">
+            <RouterLink :to="`/applications/${application.id}/edit`">Edit</RouterLink>
+          </Button>
           <Button
             v-if="application.archived_at"
             variant="outline"

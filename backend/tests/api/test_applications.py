@@ -308,3 +308,19 @@ def test_application_for_a_missing_organization_is_404(client: TestClient) -> No
 
     assert response.status_code == 404
     assert "Organization" in response.json()["detail"]
+
+
+def test_vacancy_url_must_be_an_http_url(client: TestClient, acme: Organization) -> None:
+    rejected = client.post(
+        "/api/applications",
+        json={"organization_id": acme.id, "role": "x", "vacancy_url": "not a url"},
+    )
+    assert rejected.status_code == 422
+    assert rejected.json()["detail"][0]["loc"][-1] == "vacancy_url"
+
+    created = create(client, acme, vacancy_url="https://jobs.example.com/123?ref=li")
+    assert created["vacancy_url"] == "https://jobs.example.com/123?ref=li"
+
+    url = f"/api/applications/{created['id']}"
+    assert client.patch(url, json={"vacancy_url": "ftp://jobs.example.com"}).status_code == 422
+    assert client.patch(url, json={"vacancy_url": None}).json()["vacancy_url"] is None

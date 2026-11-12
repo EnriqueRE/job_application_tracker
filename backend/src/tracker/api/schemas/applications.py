@@ -1,9 +1,10 @@
 """Request and response models for the Applications API."""
 
 from datetime import date, datetime
-from typing import Self
+from typing import Annotated, Self
+from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validator
 
 from tracker.domain import (
     ApplicationEventType,
@@ -11,6 +12,17 @@ from tracker.domain import (
     OrganizationType,
     WorkArrangement,
 )
+
+
+def _http_url(value: str) -> str:
+    parts = urlsplit(value)
+    if parts.scheme not in ("http", "https") or not parts.netloc or " " in value:
+        raise ValueError("must be a URL starting with http:// or https://")
+    return value
+
+
+HttpUrlString = Annotated[str, Field(max_length=2048), AfterValidator(_http_url)]
+"""An http(s) URL kept exactly as entered (no normalization)."""
 
 
 class ApplicationOrganization(BaseModel):
@@ -42,7 +54,7 @@ class ApplicationCreate(BaseModel):
     location: str | None = Field(default=None, max_length=255)
     work_arrangement: WorkArrangement = WorkArrangement.UNSPECIFIED
     vacancy_source: str | None = Field(default=None, max_length=255)
-    vacancy_url: str | None = None
+    vacancy_url: HttpUrlString | None = None
     vacancy_age: str | None = Field(default=None, max_length=128)
     applied_at: date | None = None
     next_action_at: date | None = None
@@ -62,7 +74,7 @@ class ApplicationUpdate(BaseModel):
     location: str | None = Field(default=None, max_length=255)
     work_arrangement: WorkArrangement | None = None
     vacancy_source: str | None = Field(default=None, max_length=255)
-    vacancy_url: str | None = None
+    vacancy_url: HttpUrlString | None = None
     vacancy_age: str | None = Field(default=None, max_length=128)
     applied_at: date | None = None
     next_action_at: date | None = None

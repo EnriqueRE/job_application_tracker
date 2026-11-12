@@ -6,6 +6,7 @@ import { ApiError, unwrap } from './errors'
 
 export type Application = Schemas['ApplicationRead']
 export type ApplicationDetail = Schemas['ApplicationDetail']
+export type ApplicationCreate = Schemas['ApplicationCreate']
 export type ApplicationUpdate = Schemas['ApplicationUpdate']
 export type ApplicationStatus = Schemas['ApplicationStatus']
 export type StatusCount = Schemas['StatusCount']
@@ -113,6 +114,25 @@ export function useArchiveApplication() {
 
 export function useRestoreApplication() {
   return useApplicationAction(restoreApplication)
+}
+
+export function createApplication(body: ApplicationCreate): Promise<ApplicationDetail> {
+  return unwrap(api.POST('/api/applications', { body }))
+}
+
+/** POST a new Application; the detail cache takes the response and lists refresh. */
+export function useCreateApplication() {
+  const queryClient = useQueryClient()
+  return useMutation<ApplicationDetail, ApiError, ApplicationCreate>({
+    mutationFn: createApplication,
+    onSuccess: (application) => {
+      queryClient.setQueryData(applicationDetailKey(application.id), application)
+      return queryClient.invalidateQueries({
+        queryKey: APPLICATIONS_KEY,
+        predicate: (query) => query.queryKey[1] !== 'detail',
+      })
+    },
+  })
 }
 
 export interface ApplicationFilters {

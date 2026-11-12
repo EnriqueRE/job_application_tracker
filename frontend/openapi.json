@@ -109,6 +109,7 @@
           "vacancy_url": {
             "anyOf": [
               {
+                "maxLength": 2048,
                 "type": "string"
               },
               {
@@ -900,6 +901,7 @@
           "vacancy_url": {
             "anyOf": [
               {
+                "maxLength": 2048,
                 "type": "string"
               },
               {
