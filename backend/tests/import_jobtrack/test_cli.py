@@ -105,3 +105,16 @@ def test_a_failure_part_way_leaves_postgres_unchanged_and_writes_no_report(
     assert OrganizationService(target).search(include_archived=True) == []
     assert ApplicationService(target).search(include_archived=True) == []
     assert not report_path.exists()
+
+
+def test_a_report_that_cannot_be_written_leaves_postgres_unchanged(
+    source: JobTrackSource, tmp_path: Path, fresh_database_url: str, target: Session
+) -> None:
+    source.application(source.organization("Acme"))
+    report_path = tmp_path / "missing-dir" / "report.json"
+
+    with pytest.raises(FileNotFoundError):
+        _run(source, report_path, fresh_database_url)
+
+    assert OrganizationService(target).search(include_archived=True) == []
+    assert ApplicationService(target).search(include_archived=True) == []

@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import MarkdownView from '@/components/MarkdownView.vue'
 import { Button } from '@/components/ui/button'
+import { blankToNull } from '@/lib/text'
 
 /**
  * A titled Markdown text that reads rendered by default and has an Edit toggle
@@ -37,7 +38,7 @@ async function submit() {
   saving.value = true
   error.value = null
   try {
-    await props.save(draft.value.trim() ? draft.value : null)
+    await props.save(blankToNull(draft.value, { keepWhitespace: true }))
     editing.value = false
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)

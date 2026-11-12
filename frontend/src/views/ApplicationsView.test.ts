@@ -200,6 +200,14 @@ describe('Applications list', () => {
       expect(items[1]!.text()).not.toContain('Overdue')
     })
 
+    it("asks for what is due relative to the browser's local date", async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(2026, 10, 12, 23, 30))
+      const { fetchMock } = await mountAt('/applications')
+
+      expect(requestsMade(fetchMock)).toContain('GET /api/applications/due?today=2026-11-12')
+    })
+
     it('stays out of the way when nothing is due', async () => {
       const { wrapper } = await mountAt('/applications', { due: [] })
 
@@ -245,6 +253,28 @@ describe('Applications list', () => {
       await flushPromises()
 
       expect(router.currentRoute.value.query.status).toBeUndefined()
+      expect(offer().attributes('aria-pressed')).toBe('false')
+    })
+
+    it('adds and removes Pipeline Statuses from the filter one count at a time', async () => {
+      const { wrapper, router, fetchMock } = await mountAt('/applications')
+      const applied = () => countButtons(wrapper)[1]!
+      const offer = () => countButtons(wrapper)[6]!
+
+      await offer().trigger('click')
+      await flushPromises()
+      await applied().trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.query.status).toEqual(['applied', 'offer'])
+      expect(requestsMade(fetchMock)).toContain('GET /api/applications?status=applied&status=offer')
+      expect(applied().attributes('aria-pressed')).toBe('true')
+      expect(offer().attributes('aria-pressed')).toBe('true')
+
+      await offer().trigger('click')
+      await flushPromises()
+
+      expect(router.currentRoute.value.query.status).toBe('applied')
       expect(offer().attributes('aria-pressed')).toBe('false')
     })
   })

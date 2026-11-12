@@ -1568,8 +1568,29 @@
     },
     "/api/applications/due": {
       "get": {
-        "description": "Non-archived Applications whose next action date is overdue or within the next\n7 days, soonest first.",
+        "description": "Non-archived Applications whose next action date is overdue or within the next\n7 days of ``today``, soonest first.",
         "operationId": "due_applications_api_applications_due_get",
+        "parameters": [
+          {
+            "description": "The caller's local date (default: the server's date)",
+            "in": "query",
+            "name": "today",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The caller's local date (default: the server's date)",
+              "title": "Today"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1584,6 +1605,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Due Applications",

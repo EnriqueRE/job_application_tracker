@@ -32,7 +32,7 @@ export interface paths {
         /**
          * Due Applications
          * @description Non-archived Applications whose next action date is overdue or within the next
-         *     7 days, soonest first.
+         *     7 days of ``today``, soonest first.
          */
         get: operations["due_applications_api_applications_due_get"];
         put?: never;
@@ -776,7 +776,10 @@ export interface operations {
     };
     due_applications_api_applications_due_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The caller's local date (default: the server's date) */
+                today?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -790,6 +793,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApplicationRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

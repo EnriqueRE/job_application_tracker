@@ -6,8 +6,8 @@ import { useDueApplications } from '@/api/applications'
 import { todayIsoDate } from '@/lib/dates'
 import { cn } from '@/lib/utils'
 
-const due = useDueApplications()
 const today = todayIsoDate()
+const due = useDueApplications(today)
 
 const items = computed(() =>
   (due.data.value ?? []).map((application) => {

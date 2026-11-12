@@ -9,6 +9,7 @@ import {
 } from '@/api/applicationEvents'
 import type { Schemas } from '@/api/client'
 import { Button } from '@/components/ui/button'
+import { blankToNull } from '@/lib/text'
 
 /** Add or edit one Application Event. Emits `submit` with the full event fields. */
 const props = defineProps<{
@@ -37,7 +38,7 @@ function submit() {
   emit('submit', {
     event_type: eventType.value,
     occurred_at: occurredAt.value ? new Date(occurredAt.value).toISOString() : null,
-    notes: notes.value.trim() ? notes.value : null,
+    notes: blankToNull(notes.value, { keepWhitespace: true }),
   })
 }
 </script>

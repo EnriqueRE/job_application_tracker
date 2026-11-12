@@ -12,6 +12,7 @@ import {
   type OrganizationUpdate,
 } from '@/api/organizations'
 import { Button } from '@/components/ui/button'
+import { blankToNull } from '@/lib/text'
 
 /**
  * Create or edit an Organization. Saves through the API itself and emits `saved`
@@ -61,10 +62,6 @@ const textFields: { key: TextField; label: string; type: string }[] = [
   { key: 'career_url', label: 'Careers page', type: 'url' },
   { key: 'contact_url', label: 'Contact page', type: 'url' },
 ]
-
-function blankToNull(value: string): string | null {
-  return value.trim() === '' ? null : value.trim()
-}
 
 function payload(): OrganizationCreate {
   return {

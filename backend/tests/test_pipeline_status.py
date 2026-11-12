@@ -222,3 +222,31 @@ def test_event_edits_and_deletes_leave_an_overridden_status_alone(
 
     applications.clear_status_override(application.id)
     assert applications.get(application.id).current_status is Status.APPLIED
+
+
+@pytest.mark.parametrize("event_type", [Event.NOTE, Event.CONTACTED, Event.FOLLOW_UP])
+def test_adding_an_event_without_a_resulting_status_keeps_the_current_status(
+    db_session: Session,
+    applications: ApplicationService,
+    application: Application,
+    event_type: ApplicationEventType,
+) -> None:
+    # Imported Applications keep their JobTrack Pipeline Status without backing events.
+    application.current_status = Status.INTERVIEW
+    db_session.flush()
+
+    event = applications.add_event(application.id, event_type)
+
+    assert event.resulting_status is None
+    assert applications.get(application.id).current_status is Status.INTERVIEW
+
+
+def test_adding_a_status_bearing_event_sets_that_status(
+    db_session: Session, applications: ApplicationService, application: Application
+) -> None:
+    application.current_status = Status.INTERVIEW
+    db_session.flush()
+
+    applications.add_event(application.id, Event.APPLIED)
+
+    assert applications.get(application.id).current_status is Status.APPLIED

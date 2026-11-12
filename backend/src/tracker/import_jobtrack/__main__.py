@@ -6,7 +6,8 @@
         --report import-report.json
 
 The target database (``--database-url``, default ``DATABASE_URL``) must already be migrated.
-Everything runs in one transaction: on any error nothing is written and no report is produced.
+Everything runs in one transaction, and the report is written before it commits: on any
+error (including failing to write the report) Postgres is left unchanged.
 Re-running is safe; rows imported before are skipped.
 """
 
@@ -46,9 +47,11 @@ def main(argv: Sequence[str] | None = None) -> None:
             report = import_jobtrack(
                 session, sqlite_path=args.sqlite, markdown_dir=args.markdown_dir
             )
+            args.report.write_text(
+                json.dumps(report.to_json(), indent=2, ensure_ascii=False) + "\n"
+            )
     finally:
         engine.dispose()
-    args.report.write_text(json.dumps(report.to_json(), indent=2, ensure_ascii=False) + "\n")
     for entity, counts in report.counts.items():
         print(
             f"{entity}: {counts.source} in JobTrack, {counts.created} created, "

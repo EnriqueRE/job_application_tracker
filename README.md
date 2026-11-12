@@ -70,8 +70,8 @@ empty tables that clash with the restore. The dump includes the `alembic_version
 so `app` then applies only migrations newer than the backup.
 
 The retention logic is tested by `backend/tests/test_backup_script.py` (runs the script
-with a stub `pg_dump`); the dump/restore round trip above was verified by hand against
-Docker.
+with a stub `pg_dump`); `backend/tests/test_backup_restore.py` runs the script against a
+real Postgres and restores the dump into a fresh one with the `pg_restore` command above.
 
 ## Develop
 

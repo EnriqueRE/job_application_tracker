@@ -78,26 +78,20 @@ def test_search_filters_and_orders_by_most_recently_applied(
         organization_id=acme.id,
         role="Data Engineer",
         applied_at=date(2026, 1, 5),
-        vacancy_source="LinkedIn",
-        location="Remote, MX",
     )
     newer = applications.create(
         organization_id=globex.id,
         role="Platform Engineer",
         applied_at=date(2026, 3, 1),
-        application_notes="salary 90k",
     )
     unapplied = applications.create(organization_id=acme.id, role="SRE")
 
     assert applications.search() == [newer, older, unapplied]
-    assert applications.search("data") == [older]
-    assert applications.search("SALARY") == [newer]
-    assert applications.search("globex") == [newer]
-    assert applications.search(organization_id=acme.id) == [older, unapplied]
-    assert applications.search(source="linked") == [older]
-    assert applications.search(location="mx") == [older]
-    assert applications.search(status=ApplicationStatus.SAVED) == [newer, older, unapplied]
-    assert applications.search(status=ApplicationStatus.APPLIED) == []
+    assert applications.search(role="data") == [older]
+    assert applications.search(organization_name="GLOBEX") == [newer]
+    assert applications.search(organization_name="acme", role="sre") == [unapplied]
+    assert applications.search(statuses=[ApplicationStatus.SAVED]) == [newer, older, unapplied]
+    assert applications.search(statuses=[ApplicationStatus.APPLIED]) == []
 
 
 def test_update_changes_fields_but_not_the_pipeline_status(

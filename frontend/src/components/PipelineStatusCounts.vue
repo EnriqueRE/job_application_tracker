@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  APPLICATION_STATUSES,
   APPLICATION_STATUS_LABELS,
   useStatusCounts,
   type ApplicationStatus,
@@ -11,10 +12,15 @@ const emit = defineEmits<{ select: [statuses: ApplicationStatus[]] }>()
 
 const counts = useStatusCounts()
 
-/** Clicking a count shows only that Pipeline Status; clicking it again shows all. */
+/** Clicking a count adds its Pipeline Status to the filter, or removes it if already there. */
 function toggle(status: ApplicationStatus) {
-  const onlyThis = props.selected.length === 1 && props.selected[0] === status
-  emit('select', onlyThis ? [] : [status])
+  const selected = props.selected.includes(status)
+    ? props.selected.filter((s) => s !== status)
+    : [...props.selected, status]
+  emit(
+    'select',
+    APPLICATION_STATUSES.filter((s) => selected.includes(s)),
+  )
 }
 </script>
 

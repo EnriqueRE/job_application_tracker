@@ -1,8 +1,8 @@
 """The Compose ``backup`` service's script: dump the database, keep the newest N dumps.
 
 The script is run for real with a stub ``pg_dump`` on ``PATH``, so these tests cover
-the file handling and retention without a database. Real dumps and restores are
-verified against Docker (see the root README).
+the file handling and retention without a database. ``test_backup_restore.py`` covers
+a real dump and restore.
 """
 
 import os
