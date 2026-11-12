@@ -1,0 +1,3 @@
+# Job Descriptions are stored in the database, not as Markdown files
+
+The predecessor app (JobTrack) kept each Job Description as a Markdown file in the git repository. The files were filed in per-status folders and moved on every status change, and a git-based sync kept the database and the files consistent across devices. Here, Job Descriptions are a Markdown text column in Postgres, alongside the Application they belong to. One store means no file/database drift, no moving files when the status changes, and no sync machinery. The Postgres backup covers them, and they can be read from any device on the tailnet. The trade-off: they are no longer browsable or diffable as plain files in git.
