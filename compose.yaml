@@ -33,5 +33,29 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
 
+  # Nightly pg_dump (custom format) into ./backups, keeping the newest BACKUP_KEEP.
+  # On demand: `docker compose exec backup /backup/backup.sh`. See README "Backups".
+  backup:
+    image: postgres:17.7-alpine
+    restart: unless-stopped
+    # Run as the host user so dumps in ./backups are owned by you, not root.
+    user: "${BACKUP_UID:-1000}:${BACKUP_GID:-1000}"
+    entrypoint: ["/backup/schedule.sh"]
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+      BACKUP_DIR: /backups
+      BACKUP_KEEP: ${BACKUP_KEEP:-14}
+      BACKUP_TIME: ${BACKUP_TIME:-03:00}
+      TZ: ${BACKUP_TZ:-UTC}
+    volumes:
+      - ./backup:/backup:ro
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
