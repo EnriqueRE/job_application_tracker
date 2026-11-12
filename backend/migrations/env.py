@@ -3,7 +3,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-import tracker.domain  # noqa: F401  (registers the domain tables on Base.metadata)
+# Register every table on Base.metadata: the domain models and the import mapping.
+import tracker.domain
+import tracker.import_jobtrack.mapping  # noqa: F401
 from tracker.db import Base
 from tracker.settings import get_settings
 

@@ -5,9 +5,11 @@ from sqlalchemy.orm import Session
 
 from tracker.domain import OrganizationType
 from tracker.services import (
+    ApplicationService,
     DuplicateOrganizationError,
     InvalidValueError,
     NotFoundError,
+    OrganizationInUseError,
     OrganizationService,
 )
 
@@ -113,6 +115,31 @@ def test_archived_organizations_are_hidden_until_restored(
 
     assert acme.archived_at is None
     assert organizations.search() == [acme, globex]
+
+
+def test_organization_with_active_applications_cannot_be_archived(
+    organizations: OrganizationService, db_session: Session
+) -> None:
+    acme = organizations.create(name="Acme", organization_type=OrganizationType.COMPANY)
+    ApplicationService(db_session).create(organization_id=acme.id, role="Backend Engineer")
+
+    with pytest.raises(OrganizationInUseError, match="1 active Application"):
+        organizations.archive(acme.id)
+
+    assert acme.archived_at is None
+
+
+def test_organization_whose_applications_are_all_archived_can_be_archived(
+    organizations: OrganizationService, db_session: Session
+) -> None:
+    acme = organizations.create(name="Acme", organization_type=OrganizationType.COMPANY)
+    applications = ApplicationService(db_session)
+    application = applications.create(organization_id=acme.id, role="Backend Engineer")
+    applications.archive(application.id)
+
+    organizations.archive(acme.id)
+
+    assert acme.archived_at is not None
 
 
 @pytest.mark.parametrize("priority", [-1, 6])
