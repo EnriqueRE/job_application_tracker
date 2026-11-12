@@ -4,6 +4,100 @@
  */
 
 export interface paths {
+    "/api/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Applications */
+        get: operations["list_applications_api_applications_get"];
+        put?: never;
+        /** Create Application */
+        post: operations["create_application_api_applications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/applications/due": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Due Applications
+         * @description Non-archived Applications whose next action date is overdue or within the next
+         *     7 days, soonest first.
+         */
+        get: operations["due_applications_api_applications_due_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/applications/status-counts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Status Counts
+         * @description A count for every Pipeline Status (in pipeline order) over non-archived Applications.
+         */
+        get: operations["status_counts_api_applications_status_counts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/applications/{application_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Application */
+        get: operations["get_application_api_applications__application_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Application */
+        patch: operations["update_application_api_applications__application_id__patch"];
+        trace?: never;
+    };
+    "/api/applications/{application_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive Application */
+        post: operations["archive_application_api_applications__application_id__archive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/applications/{application_id}/events": {
         parameters: {
             query?: never;
@@ -50,6 +144,23 @@ export interface paths {
          * @description Edit an Application Event and re-derive the Pipeline Status.
          */
         patch: operations["update_application_event_api_applications__application_id__events__event_id__patch"];
+        trace?: never;
+    };
+    "/api/applications/{application_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore Application */
+        post: operations["restore_application_api_applications__application_id__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/applications/{application_id}/status-override": {
@@ -100,6 +211,81 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ApplicationCreate */
+        ApplicationCreate: {
+            /** Application Notes */
+            application_notes?: string | null;
+            /** Applied At */
+            applied_at?: string | null;
+            /** Interview Notes */
+            interview_notes?: string | null;
+            /** Job Description */
+            job_description?: string | null;
+            /** Location */
+            location?: string | null;
+            /** Next Action At */
+            next_action_at?: string | null;
+            /** Organization Id */
+            organization_id: number;
+            /** Role */
+            role: string;
+            /** Vacancy Age */
+            vacancy_age?: string | null;
+            /** Vacancy Source */
+            vacancy_source?: string | null;
+            /** Vacancy Url */
+            vacancy_url?: string | null;
+            /** @default unspecified */
+            work_arrangement: components["schemas"]["WorkArrangement"];
+        };
+        /**
+         * ApplicationDetail
+         * @description An Application with its Job Description, Interview Notes, Application Notes and
+         *     Application Event timeline (oldest first).
+         */
+        ApplicationDetail: {
+            /** Application Notes */
+            application_notes: string | null;
+            /** Applied At */
+            applied_at: string | null;
+            /** Archived At */
+            archived_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            current_status: components["schemas"]["ApplicationStatus"];
+            /** Events */
+            events: components["schemas"]["ApplicationTimelineEvent"][];
+            /** Id */
+            id: number;
+            /** Interview Notes */
+            interview_notes: string | null;
+            /** Job Description */
+            job_description: string | null;
+            /** Location */
+            location: string | null;
+            /** Next Action At */
+            next_action_at: string | null;
+            organization: components["schemas"]["ApplicationOrganization"];
+            /** Role */
+            role: string;
+            /** Status Overridden */
+            status_overridden: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Vacancy Age */
+            vacancy_age: string | null;
+            /** Vacancy Source */
+            vacancy_source: string | null;
+            /** Vacancy Url */
+            vacancy_url: string | null;
+            work_arrangement: components["schemas"]["WorkArrangement"];
+        };
         /**
          * ApplicationEventCreate
          * @description A new Application Event. ``resulting_status`` defaults to the status the
@@ -161,6 +347,62 @@ export interface components {
             resulting_status?: components["schemas"]["ApplicationStatus"] | null;
         };
         /**
+         * ApplicationOrganization
+         * @description The Organization an Application belongs to, as embedded in Application responses.
+         */
+        ApplicationOrganization: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            organization_type: components["schemas"]["OrganizationType"];
+        };
+        /**
+         * ApplicationRead
+         * @description An Application as shown in lists (without its Markdown texts or timeline).
+         */
+        ApplicationRead: {
+            /** Applied At */
+            applied_at: string | null;
+            /** Archived At */
+            archived_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            current_status: components["schemas"]["ApplicationStatus"];
+            /** Id */
+            id: number;
+            /** Location */
+            location: string | null;
+            /** Next Action At */
+            next_action_at: string | null;
+            organization: components["schemas"]["ApplicationOrganization"];
+            /** Role */
+            role: string;
+            /** Status Overridden */
+            status_overridden: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Vacancy Age */
+            vacancy_age: string | null;
+            /** Vacancy Source */
+            vacancy_source: string | null;
+            /** Vacancy Url */
+            vacancy_url: string | null;
+            work_arrangement: components["schemas"]["WorkArrangement"];
+        };
+        /**
+         * ApplicationSort
+         * @description Date columns an Application list can be sorted by.
+         * @enum {string}
+         */
+        ApplicationSort: "applied_at" | "next_action_at" | "updated_at";
+        /**
          * ApplicationStatus
          * @description The Pipeline Status values, in pipeline order.
          * @enum {string}
@@ -176,6 +418,55 @@ export interface components {
             id: number;
             /** Status Overridden */
             status_overridden: boolean;
+        };
+        /**
+         * ApplicationTimelineEvent
+         * @description One Application Event in an Application's timeline.
+         */
+        ApplicationTimelineEvent: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            event_type: components["schemas"]["ApplicationEventType"];
+            /** Id */
+            id: number;
+            /** Notes */
+            notes: string | null;
+            /** Occurred At */
+            occurred_at: string | null;
+            resulting_status: components["schemas"]["ApplicationStatus"] | null;
+        };
+        /**
+         * ApplicationUpdate
+         * @description Partial update: only the fields sent change. The Pipeline Status is not settable here;
+         *     it changes through Application Events or the Status Override.
+         */
+        ApplicationUpdate: {
+            /** Application Notes */
+            application_notes?: string | null;
+            /** Applied At */
+            applied_at?: string | null;
+            /** Interview Notes */
+            interview_notes?: string | null;
+            /** Job Description */
+            job_description?: string | null;
+            /** Location */
+            location?: string | null;
+            /** Next Action At */
+            next_action_at?: string | null;
+            /** Organization Id */
+            organization_id?: number | null;
+            /** Role */
+            role?: string | null;
+            /** Vacancy Age */
+            vacancy_age?: string | null;
+            /** Vacancy Source */
+            vacancy_source?: string | null;
+            /** Vacancy Url */
+            vacancy_url?: string | null;
+            work_arrangement?: components["schemas"]["WorkArrangement"] | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -194,6 +485,26 @@ export interface components {
              * @enum {string}
              */
             status: "ok" | "error";
+        };
+        /**
+         * OrganizationType
+         * @description Kinds of Organization an Application can be with.
+         * @enum {string}
+         */
+        OrganizationType: "company" | "recruiter" | "recruiting_firm" | "portal";
+        /**
+         * SortOrder
+         * @enum {string}
+         */
+        SortOrder: "asc" | "desc";
+        /**
+         * StatusCount
+         * @description How many non-archived Applications are in one Pipeline Status.
+         */
+        StatusCount: {
+            /** Count */
+            count: number;
+            status: components["schemas"]["ApplicationStatus"];
         };
         /**
          * StatusOverrideSet
@@ -215,6 +526,12 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /**
+         * WorkArrangement
+         * @description Where an Application expects the work to happen.
+         * @enum {string}
+         */
+        WorkArrangement: "remote" | "hybrid" | "onsite" | "unspecified";
     };
     responses: never;
     parameters: never;
@@ -224,6 +541,216 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_applications_api_applications_get: {
+        parameters: {
+            query?: {
+                /** @description Case-insensitive substring of the Organization name */
+                organization?: string | null;
+                /** @description Case-insensitive substring of the role */
+                role?: string | null;
+                /** @description Keep Applications in any of these Pipeline Statuses */
+                status?: components["schemas"]["ApplicationStatus"][] | null;
+                include_archived?: boolean;
+                sort?: components["schemas"]["ApplicationSort"];
+                /** @description Applications without the sort date come last either way */
+                order?: components["schemas"]["SortOrder"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_application_api_applications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    due_applications_api_applications_due_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationRead"][];
+                };
+            };
+        };
+    };
+    status_counts_api_applications_status_counts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatusCount"][];
+                };
+            };
+        };
+    };
+    get_application_api_applications__application_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_application_api_applications__application_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    archive_application_api_applications__application_id__archive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_application_events_api_applications__application_id__events_get: {
         parameters: {
             query?: never;
@@ -345,6 +872,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ApplicationEventMutation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_application_api_applications__application_id__restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationRead"];
                 };
             };
             /** @description Validation Error */

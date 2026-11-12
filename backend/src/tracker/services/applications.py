@@ -1,10 +1,12 @@
 """Application use cases: CRUD, search, archive/restore, Application Events and the
 Pipeline Status they derive, and the Status Override."""
 
-from datetime import datetime
+from collections.abc import Collection
+from datetime import date, datetime, timedelta
+from enum import StrEnum
 from typing import Any
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from tracker.domain import (
@@ -38,6 +40,23 @@ UPDATABLE_FIELDS = frozenset(
 through Application Events or the Status Override."""
 
 EVENT_UPDATABLE_FIELDS = frozenset({"event_type", "occurred_at", "notes", "resulting_status"})
+
+
+DUE_SOON_DAYS = 7
+"""An Application is due soon when its next action date is overdue or within this many days."""
+
+
+class ApplicationSort(StrEnum):
+    """Date columns an Application list can be sorted by."""
+
+    APPLIED_AT = "applied_at"
+    NEXT_ACTION_AT = "next_action_at"
+    UPDATED_AT = "updated_at"
+
+
+class SortOrder(StrEnum):
+    ASC = "asc"
+    DESC = "desc"
 
 
 def _reject_unknown(fields: dict[str, Any]) -> None:
@@ -77,14 +96,22 @@ class ApplicationService:
         query: str = "",
         *,
         status: ApplicationStatus | None = None,
+        statuses: Collection[ApplicationStatus] = (),
         organization_id: int | None = None,
+        organization_name: str | None = None,
+        role: str | None = None,
         source: str | None = None,
         location: str | None = None,
         include_archived: bool = False,
+        sort: ApplicationSort = ApplicationSort.APPLIED_AT,
+        order: SortOrder = SortOrder.DESC,
     ) -> list[Application]:
-        """Filter Applications. ``query`` matches role, Application Notes or Organization name.
+        """Filter Applications. ``query`` matches role, Application Notes or Organization name;
+        ``organization_name`` and ``role`` are case-insensitive substrings; ``statuses`` keeps
+        Applications in any of the given Pipeline Statuses.
 
-        Ordered by ``applied_at`` (most recent first, unapplied last), then newest id.
+        Ordered by the ``sort`` date in ``order`` (Applications without that date last either
+        way), then newest id. Default: most recently applied first.
         """
         statement = select(Application).join(Application.organization)
         if query.strip():
@@ -96,8 +123,14 @@ class ApplicationService:
                     Organization.name.ilike(pattern),
                 )
             )
+        if organization_name and organization_name.strip():
+            statement = statement.where(Organization.name.ilike(f"%{organization_name.strip()}%"))
+        if role and role.strip():
+            statement = statement.where(Application.role.ilike(f"%{role.strip()}%"))
         if status is not None:
             statement = statement.where(Application.current_status == status)
+        if statuses:
+            statement = statement.where(Application.current_status.in_(statuses))
         if organization_id is not None:
             statement = statement.where(Application.organization_id == organization_id)
         if source and source.strip():
@@ -106,8 +139,35 @@ class ApplicationService:
             statement = statement.where(Application.location.ilike(f"%{location.strip()}%"))
         if not include_archived:
             statement = statement.where(Application.archived_at.is_(None))
-        statement = statement.order_by(
-            Application.applied_at.desc().nulls_last(), Application.id.desc()
+        column = getattr(Application, sort.value)
+        direction = column.asc() if order is SortOrder.ASC else column.desc()
+        statement = statement.order_by(direction.nulls_last(), Application.id.desc())
+        return list(self.session.scalars(statement))
+
+    def status_counts(self) -> dict[ApplicationStatus, int]:
+        """How many non-archived Applications are in each Pipeline Status (every status
+        present, in pipeline order, zero when empty)."""
+        rows = self.session.execute(
+            select(Application.current_status, func.count())
+            .where(Application.archived_at.is_(None))
+            .group_by(Application.current_status)
+        )
+        counts: dict[ApplicationStatus, int] = dict.fromkeys(ApplicationStatus, 0)
+        for status, count in rows:
+            counts[status] = count
+        return counts
+
+    def due(self, today: date, *, within_days: int = DUE_SOON_DAYS) -> list[Application]:
+        """Non-archived Applications whose next action date is overdue or at most
+        ``within_days`` after ``today``, soonest first (then oldest id)."""
+        statement = (
+            select(Application)
+            .where(
+                Application.archived_at.is_(None),
+                Application.next_action_at.is_not(None),
+                Application.next_action_at <= today + timedelta(days=within_days),
+            )
+            .order_by(Application.next_action_at.asc(), Application.id.asc())
         )
         return list(self.session.scalars(statement))
 
