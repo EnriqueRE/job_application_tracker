@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 from enum import StrEnum
 from typing import Any
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from tracker.domain import (
@@ -93,50 +93,27 @@ class ApplicationService:
 
     def search(
         self,
-        query: str = "",
         *,
-        status: ApplicationStatus | None = None,
-        statuses: Collection[ApplicationStatus] = (),
-        organization_id: int | None = None,
         organization_name: str | None = None,
         role: str | None = None,
-        source: str | None = None,
-        location: str | None = None,
+        statuses: Collection[ApplicationStatus] = (),
         include_archived: bool = False,
         sort: ApplicationSort = ApplicationSort.APPLIED_AT,
         order: SortOrder = SortOrder.DESC,
     ) -> list[Application]:
-        """Filter Applications. ``query`` matches role, Application Notes or Organization name;
-        ``organization_name`` and ``role`` are case-insensitive substrings; ``statuses`` keeps
-        Applications in any of the given Pipeline Statuses.
+        """Filter Applications. ``organization_name`` and ``role`` are case-insensitive
+        substrings; ``statuses`` keeps Applications in any of the given Pipeline Statuses.
 
         Ordered by the ``sort`` date in ``order`` (Applications without that date last either
         way), then newest id. Default: most recently applied first.
         """
         statement = select(Application).join(Application.organization)
-        if query.strip():
-            pattern = f"%{query.strip()}%"
-            statement = statement.where(
-                or_(
-                    Application.role.ilike(pattern),
-                    Application.application_notes.ilike(pattern),
-                    Organization.name.ilike(pattern),
-                )
-            )
         if organization_name and organization_name.strip():
             statement = statement.where(Organization.name.ilike(f"%{organization_name.strip()}%"))
         if role and role.strip():
             statement = statement.where(Application.role.ilike(f"%{role.strip()}%"))
-        if status is not None:
-            statement = statement.where(Application.current_status == status)
         if statuses:
             statement = statement.where(Application.current_status.in_(statuses))
-        if organization_id is not None:
-            statement = statement.where(Application.organization_id == organization_id)
-        if source and source.strip():
-            statement = statement.where(Application.vacancy_source.ilike(f"%{source.strip()}%"))
-        if location and location.strip():
-            statement = statement.where(Application.location.ilike(f"%{location.strip()}%"))
         if not include_archived:
             statement = statement.where(Application.archived_at.is_(None))
         column = getattr(Application, sort.value)
