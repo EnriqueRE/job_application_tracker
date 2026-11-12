@@ -9,8 +9,10 @@ import {
   useUpdateApplication,
   type ApplicationUpdate,
 } from '@/api/applications'
+import ApplicationTimeline from '@/components/ApplicationTimeline.vue'
 import MarkdownSection from '@/components/MarkdownSection.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import StatusOverrideControl from '@/components/StatusOverrideControl.vue'
 
 const route = useRoute()
 const id = computed(() => Number(route.params.id))
@@ -77,6 +79,7 @@ const facts = computed(() => {
             Archived
           </span>
         </p>
+        <StatusOverrideControl :application="application" />
         <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr_auto_1fr]">
           <template v-for="fact in facts" :key="fact.label">
             <dt class="text-muted-foreground">{{ fact.label }}</dt>
@@ -103,5 +106,7 @@ const facts = computed(() => {
       :source="application[item.field]"
       :save="saveField(item.field)"
     />
+
+    <ApplicationTimeline :application="application" />
   </article>
 </template>
