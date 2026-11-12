@@ -179,6 +179,20 @@ describe('New Application page', () => {
 })
 
 describe('Edit Application page', () => {
+  it('is reached from the Application detail screen', async () => {
+    const existing = makeApplicationDetail({ id: 8, role: 'Engineer' })
+    const { wrapper, router } = await mountAt('/applications/8', {
+      'GET /api/applications/:id': () => Response.json(existing),
+      'GET /api/applications/:id/events': () => Response.json([]),
+    })
+
+    await wrapper.get('a[href="/applications/8/edit"]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.path).toBe('/applications/8/edit')
+    expect(wrapper.get('h1').text()).toBe('Edit Engineer at Acme')
+  })
+
   it('saves only the changed fields and returns to the detail screen', async () => {
     const existing = makeApplicationDetail({
       id: 5,
