@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from tracker.services.errors import ConflictError, InvalidValueError, NotFoundError
 
-_STATUS_CODES: dict[type[Exception], int] = {
+STATUS_CODES: dict[type[Exception], int] = {
     NotFoundError: 404,
     ConflictError: 409,
     InvalidValueError: 422,
@@ -13,11 +13,11 @@ _STATUS_CODES: dict[type[Exception], int] = {
 
 
 def register_error_handlers(app: FastAPI) -> None:
-    for error_class, status_code in _STATUS_CODES.items():
+    for error_type, status_code in STATUS_CODES.items():
 
         def handler(
             _request: Request, exc: Exception, status_code: int = status_code
         ) -> JSONResponse:
             return JSONResponse(status_code=status_code, content={"detail": str(exc)})
 
-        app.add_exception_handler(error_class, handler)
+        app.add_exception_handler(error_type, handler)

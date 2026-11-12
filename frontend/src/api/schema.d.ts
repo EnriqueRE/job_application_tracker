@@ -4,6 +4,78 @@
  */
 
 export interface paths {
+    "/api/applications/{application_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Application Events
+         * @description The Application's timeline, in the order the events were added.
+         */
+        get: operations["list_application_events_api_applications__application_id__events_get"];
+        put?: never;
+        /**
+         * Add Application Event
+         * @description Add an Application Event and re-derive the Pipeline Status.
+         */
+        post: operations["add_application_event_api_applications__application_id__events_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/applications/{application_id}/events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Application Event
+         * @description Remove an Application Event and re-derive the Pipeline Status.
+         */
+        delete: operations["delete_application_event_api_applications__application_id__events__event_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Application Event
+         * @description Edit an Application Event and re-derive the Pipeline Status.
+         */
+        patch: operations["update_application_event_api_applications__application_id__events__event_id__patch"];
+        trace?: never;
+    };
+    "/api/applications/{application_id}/status-override": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set Status Override
+         * @description Pin the Pipeline Status by hand; Application Events stop changing it.
+         */
+        put: operations["set_status_override_api_applications__application_id__status_override_put"];
+        post?: never;
+        /**
+         * Clear Status Override
+         * @description Clear the Status Override and re-derive the Pipeline Status from Application Events.
+         */
+        delete: operations["clear_status_override_api_applications__application_id__status_override_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -107,6 +179,83 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ApplicationEventCreate
+         * @description A new Application Event. ``resulting_status`` defaults to the status the
+         *     event type implies (none for ``contacted``, ``follow_up`` and ``note``).
+         */
+        ApplicationEventCreate: {
+            event_type: components["schemas"]["ApplicationEventType"];
+            /** Notes */
+            notes?: string | null;
+            /** Occurred At */
+            occurred_at?: string | null;
+            resulting_status?: components["schemas"]["ApplicationStatus"] | null;
+        };
+        /**
+         * ApplicationEventMutation
+         * @description The event that was added or edited, plus the Application's updated Pipeline Status.
+         */
+        ApplicationEventMutation: {
+            application: components["schemas"]["ApplicationStatusRead"];
+            event: components["schemas"]["ApplicationEventRead"];
+        };
+        /** ApplicationEventRead */
+        ApplicationEventRead: {
+            /** Application Id */
+            application_id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            event_type: components["schemas"]["ApplicationEventType"];
+            /** Id */
+            id: number;
+            /** Notes */
+            notes: string | null;
+            /** Occurred At */
+            occurred_at: string | null;
+            resulting_status: components["schemas"]["ApplicationStatus"] | null;
+        };
+        /**
+         * ApplicationEventType
+         * @description Kinds of Application Event in an Application's timeline.
+         * @enum {string}
+         */
+        ApplicationEventType: "saved" | "applied" | "contacted" | "screening" | "interview_scheduled" | "interview_completed" | "technical_interview" | "final_interview" | "follow_up" | "offer" | "rejected" | "withdrawn" | "closed" | "no_response" | "note";
+        /**
+         * ApplicationEventUpdate
+         * @description Fields to change on an Application Event; omitted fields stay as they are.
+         *
+         *     Changing ``event_type`` without a ``resulting_status`` re-derives the resulting
+         *     status from the new type.
+         */
+        ApplicationEventUpdate: {
+            event_type?: components["schemas"]["ApplicationEventType"] | null;
+            /** Notes */
+            notes?: string | null;
+            /** Occurred At */
+            occurred_at?: string | null;
+            resulting_status?: components["schemas"]["ApplicationStatus"] | null;
+        };
+        /**
+         * ApplicationStatus
+         * @description The Pipeline Status values, in pipeline order.
+         * @enum {string}
+         */
+        ApplicationStatus: "saved" | "applied" | "screening" | "interview" | "technical_interview" | "final_interview" | "offer" | "rejected" | "withdrawn" | "closed" | "no_response";
+        /**
+         * ApplicationStatusRead
+         * @description An Application's Pipeline Status after a timeline or Status Override change.
+         */
+        ApplicationStatusRead: {
+            current_status: components["schemas"]["ApplicationStatus"];
+            /** Id */
+            id: number;
+            /** Status Overridden */
+            status_overridden: boolean;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -212,6 +361,13 @@ export interface components {
             /** Website Url */
             website_url?: string | null;
         };
+        /**
+         * StatusOverrideSet
+         * @description The Pipeline Status to pin by hand.
+         */
+        StatusOverrideSet: {
+            status: components["schemas"]["ApplicationStatus"];
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -234,6 +390,206 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_application_events_api_applications__application_id__events_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationEventRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_application_event_api_applications__application_id__events_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationEventCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationEventMutation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_application_event_api_applications__application_id__events__event_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationStatusRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_application_event_api_applications__application_id__events__event_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationEventUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationEventMutation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_status_override_api_applications__application_id__status_override_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusOverrideSet"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationStatusRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clear_status_override_api_applications__application_id__status_override_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationStatusRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health_api_health_get: {
         parameters: {
             query?: never;
