@@ -216,21 +216,24 @@ class ApplicationService:
         notes: str | None = None,
         resulting_status: ApplicationStatus | None = None,
     ) -> ApplicationEvent:
-        """Append an Application Event and re-derive the Pipeline Status.
+        """Append an Application Event; a status-bearing one sets the Pipeline Status
+        (unless a Status Override is in effect), any other leaves it unchanged.
 
         ``resulting_status`` defaults to the status the event type implies (if any).
         """
         application = self.get(application_id)
+        status = resulting_status or status_for_event(event_type)
         event = ApplicationEvent(
             application=application,
             event_type=event_type,
             occurred_at=occurred_at,
             notes=notes,
-            resulting_status=resulting_status or status_for_event(event_type),
+            resulting_status=status,
         )
         self.session.add(event)
+        if status is not None and not application.status_overridden:
+            application.current_status = status
         self.session.flush()
-        self._derive_status(application)
         return event
 
     def list_events(self, application_id: int) -> list[ApplicationEvent]:
