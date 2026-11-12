@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import {
   APPLICATION_STATUS_LABELS,
   WORK_ARRANGEMENT_LABELS,
   useApplication,
+  useArchiveApplication,
+  useRestoreApplication,
   useUpdateApplication,
   type ApplicationUpdate,
 } from '@/api/applications'
@@ -13,12 +15,22 @@ import ApplicationTimeline from '@/components/ApplicationTimeline.vue'
 import MarkdownSection from '@/components/MarkdownSection.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import StatusOverrideControl from '@/components/StatusOverrideControl.vue'
+import { Button } from '@/components/ui/button'
 
 const route = useRoute()
 const id = computed(() => Number(route.params.id))
 
 const { data: application, error, isPending } = useApplication(id)
 const update = useUpdateApplication()
+const archive = useArchiveApplication()
+const restore = useRestoreApplication()
+const confirmingArchive = ref(false)
+
+function archiveNow() {
+  archive.mutate(id.value, { onSuccess: () => (confirmingArchive.value = false) })
+}
+
+const archiveError = computed(() => (archive.error.value ?? restore.error.value)?.message)
 
 type MarkdownField = 'job_description' | 'interview_notes' | 'application_notes'
 
@@ -54,7 +66,52 @@ const facts = computed(() => {
   <p v-else-if="error" role="alert" class="text-destructive">{{ error.message }}</p>
   <article v-else-if="application" class="min-w-0 space-y-8">
     <div>
-      <PageHeader :title="application.role" />
+      <PageHeader :title="application.role">
+        <template #actions>
+          <Button
+            v-if="application.archived_at"
+            variant="outline"
+            size="sm"
+            :disabled="restore.isPending.value"
+            @click="restore.mutate(application.id)"
+          >
+            Restore
+          </Button>
+          <Button
+            v-else-if="!confirmingArchive"
+            variant="outline"
+            size="sm"
+            @click="
+              () => {
+                archive.reset()
+                confirmingArchive = true
+              }
+            "
+          >
+            Archive
+          </Button>
+        </template>
+      </PageHeader>
+      <div
+        v-if="confirmingArchive && !application.archived_at"
+        class="-mt-3 mb-6 flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 p-3"
+      >
+        <span class="text-sm">
+          Archive this Application? It leaves the active lists but can be restored.
+        </span>
+        <Button
+          variant="destructive"
+          size="sm"
+          :disabled="archive.isPending.value"
+          @click="archiveNow"
+        >
+          Archive Application
+        </Button>
+        <Button variant="ghost" size="sm" @click="confirmingArchive = false">Keep</Button>
+      </div>
+      <p v-if="archiveError" role="alert" class="-mt-3 mb-6 text-sm text-destructive">
+        {{ archiveError }}
+      </p>
       <div class="-mt-4 space-y-3">
         <p class="text-lg">
           <RouterLink
@@ -80,7 +137,9 @@ const facts = computed(() => {
           </span>
         </p>
         <StatusOverrideControl :application="application" />
-        <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr_auto_1fr]">
+        <dl
+          class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr_auto_1fr]"
+        >
           <template v-for="fact in facts" :key="fact.label">
             <dt class="text-muted-foreground">{{ fact.label }}</dt>
             <dd class="min-w-0 break-words">{{ fact.value }}</dd>

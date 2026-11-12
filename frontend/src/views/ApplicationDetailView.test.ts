@@ -62,7 +62,7 @@ describe('Application detail page', () => {
     expect(wrapper.text()).toContain('Hybrid')
     expect(wrapper.get('[data-testid="pipeline-status"]').text()).toContain('Technical interview')
     expect(wrapper.get('[data-testid="pipeline-status"]').text()).toContain('Status Override')
-    expect(wrapper.get('a[href="https://jobs.example.com/42"]').exists()).toBe(true)
+    expect(wrapper.find('a[href="https://jobs.example.com/42"]').exists()).toBe(true)
   })
 
   it('renders the Job Description and prompts for empty Interview Notes', async () => {
@@ -129,7 +129,11 @@ describe('Application detail page', () => {
           return Response.json(
             {
               event: { ...event, application_id: application.id },
-              application: { id: application.id, current_status: 'applied', status_overridden: false },
+              application: {
+                id: application.id,
+                current_status: 'applied',
+                status_overridden: false,
+              },
             },
             { status: 201 },
           )
@@ -219,7 +223,11 @@ describe('Application detail page', () => {
           body = await request.json()
           application.current_status = 'offer'
           application.status_overridden = true
-          return Response.json({ id: application.id, current_status: 'offer', status_overridden: true })
+          return Response.json({
+            id: application.id,
+            current_status: 'offer',
+            status_overridden: true,
+          })
         },
       })
 
@@ -256,9 +264,54 @@ describe('Application detail page', () => {
       expect(requestsMade(fetchMock)).toContain(
         `DELETE /api/applications/${application.id}/status-override`,
       )
-      expect(wrapper.get('[data-testid="pipeline-status"]').text()).not.toContain(
-        'Status Override',
-      )
+      expect(wrapper.get('[data-testid="pipeline-status"]').text()).not.toContain('Status Override')
+    })
+  })
+
+  describe('archiving', () => {
+    it('archives the Application after confirming', async () => {
+      const application = makeApplicationDetail()
+      const { fetchMock, wrapper } = await mountDetail(application, {
+        'POST /api/applications/:id/archive': () => {
+          application.archived_at = '2026-11-12T10:00:00Z'
+          return Response.json(application)
+        },
+      })
+
+      await buttonIn(wrapper, 'Archive').trigger('click')
+      expect(requestsMade(fetchMock).some((r) => r.endsWith('/archive'))).toBe(false)
+      await buttonIn(wrapper, 'Archive Application').trigger('click')
+      await flushPromises()
+
+      expect(requestsMade(fetchMock)).toContain(`POST /api/applications/${application.id}/archive`)
+      expect(wrapper.get('[data-testid="pipeline-status"]').text()).toContain('Archived')
+      expect(buttonIn(wrapper, 'Restore').exists()).toBe(true)
+    })
+
+    it('can back out of archiving', async () => {
+      const { fetchMock, wrapper } = await mountDetail(makeApplicationDetail())
+
+      await buttonIn(wrapper, 'Archive').trigger('click')
+      await buttonIn(wrapper, 'Keep').trigger('click')
+
+      expect(requestsMade(fetchMock).some((r) => r.endsWith('/archive'))).toBe(false)
+      expect(wrapper.findAll('button').some((b) => b.text() === 'Archive Application')).toBe(false)
+    })
+
+    it('restores an archived Application', async () => {
+      const application = makeApplicationDetail({ archived_at: '2026-11-12T10:00:00Z' })
+      const { fetchMock, wrapper } = await mountDetail(application, {
+        'POST /api/applications/:id/restore': () => {
+          application.archived_at = null
+          return Response.json(application)
+        },
+      })
+
+      await buttonIn(wrapper, 'Restore').trigger('click')
+      await flushPromises()
+
+      expect(requestsMade(fetchMock)).toContain(`POST /api/applications/${application.id}/restore`)
+      expect(wrapper.get('[data-testid="pipeline-status"]').text()).not.toContain('Archived')
     })
   })
 

@@ -61,9 +61,7 @@ async function submit() {
       <p v-if="error" role="alert" class="text-sm text-destructive">{{ error }}</p>
       <div class="flex gap-2">
         <Button size="sm" :disabled="saving" @click="submit">Save</Button>
-        <Button variant="ghost" size="sm" :disabled="saving" @click="cancel">
-          Cancel
-        </Button>
+        <Button variant="ghost" size="sm" :disabled="saving" @click="cancel"> Cancel </Button>
       </div>
     </div>
     <MarkdownView v-else-if="source?.trim()" :source="source" />

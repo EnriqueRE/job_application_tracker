@@ -55,7 +55,9 @@ function confirmDelete(eventId: number) {
   remove.mutate(eventId, { onSuccess: () => (confirmingDelete.value = null) })
 }
 
-const formError = computed(() => (editing.value === 'new' ? add.error : update.error).value?.message)
+const formError = computed(
+  () => (editing.value === 'new' ? add.error : update.error).value?.message,
+)
 const formSaving = computed(() => add.isPending.value || update.isPending.value)
 </script>
 
@@ -98,10 +100,7 @@ const formSaving = computed(() => add.isPending.value || update.isPending.value)
                 → {{ APPLICATION_STATUS_LABELS[event.resulting_status] }}
               </span>
             </p>
-            <time
-              :datetime="event.occurred_at ?? undefined"
-              class="text-sm text-muted-foreground"
-            >
+            <time :datetime="event.occurred_at ?? undefined" class="text-sm text-muted-foreground">
               {{ formatWhen(event.occurred_at) }}
             </time>
           </div>
