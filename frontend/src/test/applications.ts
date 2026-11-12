@@ -1,12 +1,13 @@
 import type { Schemas } from '@/api/client'
 
+type Application = Schemas['ApplicationRead']
 type ApplicationDetail = Schemas['ApplicationDetail']
 type TimelineEvent = Schemas['ApplicationTimelineEvent']
 
 let nextId = 1
 
-/** An ApplicationDetail as the API returns it, with overridable fields. */
-export function makeApplicationDetail(fields: Partial<ApplicationDetail> = {}): ApplicationDetail {
+/** An ApplicationRead as the API returns it, with overridable fields. */
+export function makeApplication(fields: Partial<Application> = {}): Application {
   const id = fields.id ?? nextId++
   return {
     id,
@@ -24,6 +25,14 @@ export function makeApplicationDetail(fields: Partial<ApplicationDetail> = {}): 
     created_at: '2026-11-01T10:00:00Z',
     updated_at: '2026-11-01T10:00:00Z',
     archived_at: null,
+    ...fields,
+  }
+}
+
+/** An ApplicationDetail as the API returns it, with overridable fields. */
+export function makeApplicationDetail(fields: Partial<ApplicationDetail> = {}): ApplicationDetail {
+  return {
+    ...makeApplication({ id: fields.id }),
     job_description: null,
     interview_notes: null,
     application_notes: null,
