@@ -18,6 +18,13 @@ Settings are read from environment variables (or a `backend/.env` file) by
 | Variable       | Required | Example                                                |
 | -------------- | -------- | ------------------------------------------------------ |
 | `DATABASE_URL` | yes      | `postgresql+psycopg://tracker:secret@localhost:5432/tracker` |
+| `STATIC_DIR`   | no       | `../frontend/dist`                                     |
+
+When `STATIC_DIR` is set (the Docker image sets it), the app also serves that built SPA:
+existing files as-is, any other non-`/api` path as `index.html` for Vue Router's history
+mode. Unknown `/api/*` paths stay JSON 404s. Read by `create_app()` in `tracker/app.py`
+(see `tracker/spa.py`); `STATIC_DIR` is read directly from the environment, not through
+`Settings`, so `python -m tracker.openapi` still runs without a database URL.
 
 ## Run
 
