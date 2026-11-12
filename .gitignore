@@ -1,3 +1,6 @@
 .env
 /backups/*
 !/backups/.gitkeep
+
+# Local SQLite files (e.g. JobTrack databases) — personal data, never commit
+*.db
