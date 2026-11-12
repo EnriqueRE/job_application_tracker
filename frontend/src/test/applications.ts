@@ -32,7 +32,7 @@ export function makeApplication(fields: Partial<Application> = {}): Application 
 /** An ApplicationDetail as the API returns it, with overridable fields. */
 export function makeApplicationDetail(fields: Partial<ApplicationDetail> = {}): ApplicationDetail {
   return {
-    ...makeApplication({ id: fields.id }),
+    ...makeApplication(fields.id === undefined ? {} : { id: fields.id }),
     job_description: null,
     interview_notes: null,
     application_notes: null,
