@@ -39,6 +39,12 @@ uv run pytest
 `pytest` needs a running Docker daemon: the test session starts a throwaway
 Postgres container with testcontainers.
 
+## OpenAPI schema
+
+`uv run python -m tracker.openapi OUTPUT.json` writes the API's OpenAPI schema without
+starting a server or touching the database. The frontend's `npm run gen:api` uses it to
+regenerate its TypeScript client; run that after changing routes or response models.
+
 ## Migrations
 
 Alembic reads `DATABASE_URL` from settings in `migrations/env.py`;
