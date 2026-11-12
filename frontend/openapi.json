@@ -1,6 +1,259 @@
 {
   "components": {
     "schemas": {
+      "ApplicationEventCreate": {
+        "description": "A new Application Event. ``resulting_status`` defaults to the status the\nevent type implies (none for ``contacted``, ``follow_up`` and ``note``).",
+        "properties": {
+          "event_type": {
+            "$ref": "#/components/schemas/ApplicationEventType"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Occurred At"
+          },
+          "resulting_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "event_type"
+        ],
+        "title": "ApplicationEventCreate",
+        "type": "object"
+      },
+      "ApplicationEventMutation": {
+        "description": "The event that was added or edited, plus the Application's updated Pipeline Status.",
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/ApplicationStatusRead"
+          },
+          "event": {
+            "$ref": "#/components/schemas/ApplicationEventRead"
+          }
+        },
+        "required": [
+          "event",
+          "application"
+        ],
+        "title": "ApplicationEventMutation",
+        "type": "object"
+      },
+      "ApplicationEventRead": {
+        "properties": {
+          "application_id": {
+            "title": "Application Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "event_type": {
+            "$ref": "#/components/schemas/ApplicationEventType"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Occurred At"
+          },
+          "resulting_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "application_id",
+          "event_type",
+          "occurred_at",
+          "notes",
+          "resulting_status",
+          "created_at"
+        ],
+        "title": "ApplicationEventRead",
+        "type": "object"
+      },
+      "ApplicationEventType": {
+        "description": "Kinds of Application Event in an Application's timeline.",
+        "enum": [
+          "saved",
+          "applied",
+          "contacted",
+          "screening",
+          "interview_scheduled",
+          "interview_completed",
+          "technical_interview",
+          "final_interview",
+          "follow_up",
+          "offer",
+          "rejected",
+          "withdrawn",
+          "closed",
+          "no_response",
+          "note"
+        ],
+        "title": "ApplicationEventType",
+        "type": "string"
+      },
+      "ApplicationEventUpdate": {
+        "description": "Fields to change on an Application Event; omitted fields stay as they are.\n\nChanging ``event_type`` without a ``resulting_status`` re-derives the resulting\nstatus from the new type.",
+        "properties": {
+          "event_type": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationEventType"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "occurred_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Occurred At"
+          },
+          "resulting_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApplicationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "ApplicationEventUpdate",
+        "type": "object"
+      },
+      "ApplicationStatus": {
+        "description": "The Pipeline Status values, in pipeline order.",
+        "enum": [
+          "saved",
+          "applied",
+          "screening",
+          "interview",
+          "technical_interview",
+          "final_interview",
+          "offer",
+          "rejected",
+          "withdrawn",
+          "closed",
+          "no_response"
+        ],
+        "title": "ApplicationStatus",
+        "type": "string"
+      },
+      "ApplicationStatusRead": {
+        "description": "An Application's Pipeline Status after a timeline or Status Override change.",
+        "properties": {
+          "current_status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "status_overridden": {
+            "title": "Status Overridden",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "current_status",
+          "status_overridden"
+        ],
+        "title": "ApplicationStatusRead",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthStatus": {
         "properties": {
           "database": {
@@ -26,6 +279,59 @@
         ],
         "title": "HealthStatus",
         "type": "object"
+      },
+      "StatusOverrideSet": {
+        "description": "The Pipeline Status to pin by hand.",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "StatusOverrideSet",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
       }
     }
   },
@@ -35,6 +341,310 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/applications/{application_id}/events": {
+      "get": {
+        "description": "The Application's timeline, in the order the events were added.",
+        "operationId": "list_application_events_api_applications__application_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationEventRead"
+                  },
+                  "title": "Response List Application Events Api Applications  Application Id  Events Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Application Events",
+        "tags": [
+          "application-events"
+        ]
+      },
+      "post": {
+        "description": "Add an Application Event and re-derive the Pipeline Status.",
+        "operationId": "add_application_event_api_applications__application_id__events_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationEventCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationEventMutation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Application Event",
+        "tags": [
+          "application-events"
+        ]
+      }
+    },
+    "/api/applications/{application_id}/events/{event_id}": {
+      "delete": {
+        "description": "Remove an Application Event and re-derive the Pipeline Status.",
+        "operationId": "delete_application_event_api_applications__application_id__events__event_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {
+              "title": "Event Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationStatusRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Application Event",
+        "tags": [
+          "application-events"
+        ]
+      },
+      "patch": {
+        "description": "Edit an Application Event and re-derive the Pipeline Status.",
+        "operationId": "update_application_event_api_applications__application_id__events__event_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {
+              "title": "Event Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationEventUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationEventMutation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Application Event",
+        "tags": [
+          "application-events"
+        ]
+      }
+    },
+    "/api/applications/{application_id}/status-override": {
+      "delete": {
+        "description": "Clear the Status Override and re-derive the Pipeline Status from Application Events.",
+        "operationId": "clear_status_override_api_applications__application_id__status_override_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationStatusRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Clear Status Override",
+        "tags": [
+          "application-events"
+        ]
+      },
+      "put": {
+        "description": "Pin the Pipeline Status by hand; Application Events stop changing it.",
+        "operationId": "set_status_override_api_applications__application_id__status_override_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "title": "Application Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusOverrideSet"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationStatusRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Status Override",
+        "tags": [
+          "application-events"
+        ]
+      }
+    },
     "/api/health": {
       "get": {
         "description": "Report whether the app is up and can reach its database.",
