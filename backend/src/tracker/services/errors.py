@@ -18,7 +18,8 @@ class DuplicateOrganizationError(ConflictError):
 
 
 class OrganizationInUseError(ConflictError):
-    """The Organization still has Applications, so it cannot be deleted (archive it instead)."""
+    """The Organization still has Applications: it cannot be deleted, nor archived while any
+    of them is active."""
 
 
 class InvalidValueError(DomainError, ValueError):
