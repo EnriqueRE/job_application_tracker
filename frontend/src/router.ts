@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouterHistory } from 'vue-router'
 
+import ApplicationDetailView from './views/ApplicationDetailView.vue'
 import ApplicationsView from './views/ApplicationsView.vue'
 import NotFoundView from './views/NotFoundView.vue'
 import OrganizationFormView from './views/OrganizationFormView.vue'
@@ -11,6 +12,11 @@ export function createAppRouter(history: RouterHistory = createWebHistory()) {
     routes: [
       { path: '/', redirect: '/applications' },
       { path: '/applications', name: 'applications', component: ApplicationsView },
+      {
+        path: '/applications/:id(\\d+)',
+        name: 'application-detail',
+        component: ApplicationDetailView,
+      },
       { path: '/organizations', name: 'organizations', component: OrganizationsView },
       { path: '/organizations/new', name: 'organization-new', component: OrganizationFormView },
       {
