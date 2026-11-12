@@ -125,7 +125,6 @@ class Application(Base, TimestampMixin, ArchiveMixin):
     events: Mapped[list[ApplicationEvent]] = relationship(
         back_populates="application",
         cascade="all, delete-orphan",
-        passive_deletes=True,
         order_by="ApplicationEvent.id",
     )
 
