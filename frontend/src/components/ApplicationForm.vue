@@ -13,6 +13,7 @@ import {
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import OrganizationPicker, { type PickedOrganization } from '@/components/OrganizationPicker.vue'
 import { Button } from '@/components/ui/button'
+import { blankToNull } from '@/lib/text'
 
 /**
  * Create or edit an Application. Saves through the API itself and emits `saved`
@@ -64,10 +65,6 @@ function validate(): FieldErrors {
   return errors
 }
 
-function blankToNull(value: string): string | null {
-  return value.trim() === '' ? null : value.trim()
-}
-
 function payload(organizationId: number): ApplicationCreate {
   return {
     organization_id: organizationId,
@@ -79,9 +76,9 @@ function payload(organizationId: number): ApplicationCreate {
     applied_at: form.applied_at || null,
     next_action_at: form.next_action_at || null,
     // Markdown keeps its whitespace; only an all-blank text counts as empty.
-    job_description: form.job_description.trim() ? form.job_description : null,
-    interview_notes: form.interview_notes.trim() ? form.interview_notes : null,
-    application_notes: form.application_notes.trim() ? form.application_notes : null,
+    job_description: blankToNull(form.job_description, { keepWhitespace: true }),
+    interview_notes: blankToNull(form.interview_notes, { keepWhitespace: true }),
+    application_notes: blankToNull(form.application_notes, { keepWhitespace: true }),
   }
 }
 
