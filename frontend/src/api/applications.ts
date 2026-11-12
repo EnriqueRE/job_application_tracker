@@ -179,12 +179,18 @@ export function useStatusCounts() {
   return useQuery({ queryKey: [...APPLICATIONS_KEY, 'status-counts'], queryFn: fetchStatusCounts })
 }
 
-/** `GET /api/applications/due`: overdue or due within a week, soonest first. */
-export function fetchDueApplications(): Promise<Application[]> {
-  return unwrap(api.GET('/api/applications/due'))
+/**
+ * `GET /api/applications/due`: overdue or due within a week of `today` (a local
+ * `YYYY-MM-DD` date, so the browser's time zone decides what "today" is), soonest first.
+ */
+export function fetchDueApplications(today: string): Promise<Application[]> {
+  return unwrap(api.GET('/api/applications/due', { params: { query: { today } } }))
 }
 
-/** Non-archived Applications whose next action is overdue or due within a week. */
-export function useDueApplications() {
-  return useQuery({ queryKey: [...APPLICATIONS_KEY, 'due'], queryFn: fetchDueApplications })
+/** Non-archived Applications whose next action is overdue or due within a week of `today`. */
+export function useDueApplications(today: string) {
+  return useQuery({
+    queryKey: [...APPLICATIONS_KEY, 'due', today],
+    queryFn: () => fetchDueApplications(today),
+  })
 }

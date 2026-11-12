@@ -63,11 +63,16 @@ def get_today() -> date:
 
 @router.get("/due", response_model=list[ApplicationRead])
 def due_applications(
-    session: SessionDep, today: Annotated[date, Depends(get_today)]
+    session: SessionDep,
+    server_today: Annotated[date, Depends(get_today)],
+    today: Annotated[
+        date | None,
+        Query(description="The caller's local date (default: the server's date)"),
+    ] = None,
 ) -> list[Application]:
     """Non-archived Applications whose next action date is overdue or within the next
-    7 days, soonest first."""
-    return ApplicationService(session).due(today)
+    7 days of ``today``, soonest first."""
+    return ApplicationService(session).due(today or server_today)
 
 
 @router.post("", response_model=ApplicationDetail, status_code=201)

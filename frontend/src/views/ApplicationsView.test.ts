@@ -200,6 +200,14 @@ describe('Applications list', () => {
       expect(items[1]!.text()).not.toContain('Overdue')
     })
 
+    it("asks for what is due relative to the browser's local date", async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(2026, 10, 12, 23, 30))
+      const { fetchMock } = await mountAt('/applications')
+
+      expect(requestsMade(fetchMock)).toContain('GET /api/applications/due?today=2026-11-12')
+    })
+
     it('stays out of the way when nothing is due', async () => {
       const { wrapper } = await mountAt('/applications', { due: [] })
 

@@ -293,6 +293,22 @@ def test_due_lists_overdue_and_next_seven_days_soonest_first(
     assert roles(client.get("/api/applications/due")) == ["Overdue", "Today", "Day 7"]
 
 
+def test_due_uses_the_callers_today_when_given(
+    client: TestClient, fixed_today: date, acme: Organization
+) -> None:
+    create(client, acme, role="Day 8", next_action_at="2026-11-20")
+    create(client, acme, role="Today", next_action_at="2026-11-12")
+
+    # The browser is already on 2026-11-13 while the server is still on 2026-11-12.
+    response = client.get("/api/applications/due", params={"today": "2026-11-13"})
+
+    assert roles(response) == ["Today", "Day 8"]
+
+
+def test_due_rejects_a_today_that_is_not_a_date(client: TestClient) -> None:
+    assert client.get("/api/applications/due", params={"today": "soon"}).status_code == 422
+
+
 def test_archiving_a_missing_application_is_404(client: TestClient) -> None:
     assert client.post("/api/applications/999999/archive").status_code == 404
     assert client.post("/api/applications/999999/restore").status_code == 404
