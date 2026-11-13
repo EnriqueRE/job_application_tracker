@@ -25,9 +25,28 @@ open http://127.0.0.1:8000
   `127.0.0.1:8000`.
 - `backup`: nightly `pg_dump` into `./backups` (see [Backups](#backups)).
 
-To reach it from your tailnet: `tailscale serve --bg 8000`.
-
 Stop with `docker compose down` (add `-v` only if you want to delete the database).
+
+## Reach it from your tailnet
+
+`tailscale serve` proxies HTTPS on the host's tailnet name to `127.0.0.1:8000`, so
+your phone and other tailnet devices can use the app while the LAN cannot (the app
+listens on loopback only). One-time setup on the host:
+
+```sh
+sudo tailscale up --operator=$USER   # log in; lets your user run `tailscale serve`
+tailscale serve --bg 8000            # https://<host>.<tailnet>.ts.net -> 127.0.0.1:8000
+tailscale serve status               # should say "(tailnet only)"
+```
+
+The serve config persists across reboots. If HTTPS certificates aren't enabled for the
+tailnet yet, `tailscale serve` prints a link to enable them in the admin console.
+Turn it off with `tailscale serve --https=443 off`. Never use `tailscale funnel`: that
+puts the app, which has no login, on the public internet.
+
+To check: open `https://<host>.<tailnet>.ts.net/api/health` from a tailnet device
+(expect `{"status":"ok","database":"ok"}`), and confirm `http://<host LAN IP>:8000` is
+refused from a device on the LAN that is not on the tailnet.
 
 ## Backups
 
